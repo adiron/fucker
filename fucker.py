@@ -4,25 +4,28 @@
 import argparse
 import random
 from sys import stderr
-
+from os import path
 
 def main():
     parser = argparse.ArgumentParser(description='f u c k e r')
     parser.add_argument('file', nargs=1, type=argparse.FileType('rb'))
-    parser.add_argument('--generations', '-g', nargs=1, type=int, default=1)
-    parser.add_argument('--seed', '-s', nargs=1, type=int, default=None)
-    parser.add_argument('--write', '-w', type=boolean, default=False)
-    parser.add_argument('--one', '-1', type=boolean, default=False)
+    parser.add_argument('--generations', '-g', nargs=1, type=int, default=[1])
+    parser.add_argument('--fuck', '-f', action='count', default=0)
+    parser.add_argument('--seed', '-s', nargs=1, type=int, default=[0])
+    parser.add_argument('--write', '-w', action="store_true")
+    parser.add_argument('--path', '-p', nargs=1, type=str, default=['.'])
     args = parser.parse_args()
 
-    print("Seed is {}".format(args.seed), file=stderr)
-    random.seed(args.seed)
-    print("Reading file..", file=stderr)
+    if args.seed[0] != 0:
+        print('Setting seed: {}'.format(args.seed[0]), file=stderr)
+        random.seed(args.seed[0])
+    print('Reading file..', file=stderr)
+    print('Fucking level is {}.'.format(args.fuck))
     data = args.file[0].read()
     if not args.write:
-        print(fuck(data, args, carry=args.generations), end="")
+        print(fuck(data, args, carry=args.generations[0]), end='')
     else:
-        fuck(data, args, carry=args.generations)
+        fuck(data, args, carry=args.generations[0])
 
 
 def fuck(data, args, carry=0):
@@ -30,11 +33,13 @@ def fuck(data, args, carry=0):
     # Add something at a random spot along the way.
     s = random.randrange(0, len(data))
     garbage = bytearray([random.randint(0, 255)
-                         for a in range(random.randint(1, 200))])
+                         for a in range(random.randint(1, (args.fuck + 1)*20))])
     data = data[:s] + garbage + data[s:]
 
     if args.write:
-        with open("fucker-{}-{}".format(args.generations - carry, args.file[0].name), "w+") as f:
+        fn = path.join(args.path[0], 'fucked-{:06d}-{}'.format(args.generations[0] - carry, path.basename(args.file[0].name)))
+        with open(fn, 'wb+') as f:
+            print('Writing to {}...'.format(fn))
             f.write(data)
     if carry > 1:
         return fuck(data, args, carry - 1)
