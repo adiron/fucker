@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # This program corrupts files on purpose.
 # I intend to use it for art.
 
