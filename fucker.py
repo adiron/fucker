@@ -3,17 +3,19 @@
 
 import argparse
 import random
-from sys import stderr
+from sys import stderr, setrecursionlimit
 from os import path
 
+setrecursionlimit(20000)
+
 def main():
-    parser = argparse.ArgumentParser(description='f u c k e r')
-    parser.add_argument('file', nargs=1, type=argparse.FileType('rb'))
-    parser.add_argument('--generations', '-g', nargs=1, type=int, default=[1])
-    parser.add_argument('--fuck', '-f', action='count', default=0)
-    parser.add_argument('--seed', '-s', nargs=1, type=int, default=[0])
-    parser.add_argument('--write', '-w', action="store_true")
-    parser.add_argument('--path', '-p', nargs=1, type=str, default=['.'])
+    parser = argparse.ArgumentParser(description='f u c k e r is a tool for the controlled destruction of files for fun and profit.')
+    parser.add_argument('file', nargs=1, type=argparse.FileType('rb'), help="file to be fucked (required)")
+    parser.add_argument('--generations', '-g', nargs=1, type=int, default=[1], help="number of generations to output")
+    parser.add_argument('--fuck', '-f', action='count', default=0, help="fucking level (pass argument multiple times for greater effect!)")
+    parser.add_argument('--seed', '-s', nargs=1, type=int, default=[0], help='set the random seed if needed')
+    parser.add_argument('--write', '-w', action="store_true", help="write out files (default is stdout)")
+    parser.add_argument('--path', '-p', nargs=1, type=str, default=['.'], help="write path when using writing files")
     args = parser.parse_args()
 
     if args.seed[0] != 0:
@@ -33,7 +35,7 @@ def fuck(data, args, carry=0):
     # Add something at a random spot along the way.
     s = random.randrange(0, len(data))
     garbage = bytearray([random.randint(0, 255)
-                         for a in range(random.randint(1, (args.fuck + 1)*20))])
+                         for a in range(random.randint(1, args.fuck + 1))])
     data = data[:s] + garbage + data[s:]
 
     if args.write:
